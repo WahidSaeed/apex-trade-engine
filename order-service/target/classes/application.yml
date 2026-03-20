@@ -1,0 +1,13 @@
+server:
+  port: 8081 # Setting a specific port for the Order Service
+
+spring:
+  application:
+    name: order-service
+  
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      # This tells Kafka how to turn your Java OrderEvent into JSON
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
