@@ -1,0 +1,12 @@
+com/apextrade/orderservice/consumer/TradeConsumer.class
+com/apextrade/orderservice/repository/OrderRepository.class
+com/apextrade/orderservice/controller/TradeController.class
+com/apextrade/orderservice/controller/OrderController.class
+com/apextrade/orderservice/exception/GlobalExceptionHandler.class
+com/apextrade/orderservice/model/Trade.class
+com/apextrade/orderservice/OrderServiceApplication.class
+com/apextrade/orderservice/producer/OrderProducer.class
+com/apextrade/orderservice/repository/TradeRepository.class
+com/apextrade/orderservice/model/Order.class
+com/apextrade/orderservice/service/OrderProcessingService.class
+com/apextrade/orderservice/client/WalletClient.class

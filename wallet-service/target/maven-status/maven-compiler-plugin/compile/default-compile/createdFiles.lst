@@ -1,0 +1,7 @@
+com/apextrade/walletservice/repository/WalletRepository.class
+com/apextrade/walletservice/controller/WalletController.class
+com/apextrade/walletservice/consumer/TradeConsumer.class
+com/apextrade/walletservice/service/WalletService.class
+com/apextrade/walletservice/exception/GlobalExceptionHandler.class
+com/apextrade/walletservice/WalletServiceApplication.class
+com/apextrade/walletservice/model/Wallet.class

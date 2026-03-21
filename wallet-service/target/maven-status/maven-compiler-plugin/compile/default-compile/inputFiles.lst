@@ -1,0 +1,7 @@
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/wallet-service/src/main/java/com/apextrade/walletservice/WalletServiceApplication.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/wallet-service/src/main/java/com/apextrade/walletservice/consumer/TradeConsumer.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/wallet-service/src/main/java/com/apextrade/walletservice/repository/WalletRepository.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/wallet-service/src/main/java/com/apextrade/walletservice/controller/WalletController.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/wallet-service/src/main/java/com/apextrade/walletservice/model/Wallet.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/wallet-service/src/main/java/com/apextrade/walletservice/service/WalletService.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/wallet-service/src/main/java/com/apextrade/walletservice/exception/GlobalExceptionHandler.java

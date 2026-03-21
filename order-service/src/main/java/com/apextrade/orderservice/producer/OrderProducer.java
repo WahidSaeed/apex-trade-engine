@@ -1,20 +1,34 @@
 package com.apextrade.orderservice.producer;
 
-import com.apextrade.dto.OrderEvent;
-import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import com.apextrade.dto.kafka.CancelEvent;
+import com.apextrade.dto.kafka.OrderEvent;
+import com.apextrade.orderservice.model.Order;
+
 @Service
-@RequiredArgsConstructor
 public class OrderProducer {
+    private final KafkaTemplate<String, OrderEvent> kafkaTemplateNewOrder;
+    private final KafkaTemplate<String, CancelEvent> kafkaTemplateCancelOrder;
+    private static final String TOPIC_REQUEST = "order-requests";
+    private static final String TOPIC_CANCEL = "order-cancellations";
 
-    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
-    private static final String TOPIC = "order-requests";
+    // Manual constructor replaces @RequiredArgsConstructor
+    public OrderProducer(
+        KafkaTemplate<String, OrderEvent> kafkaTemplateNewOrder,
+        KafkaTemplate<String, CancelEvent> kafkaTemplateCancelOrder
+    ) {
+        this.kafkaTemplateNewOrder = kafkaTemplateNewOrder;
+        this.kafkaTemplateCancelOrder = kafkaTemplateCancelOrder;
+    }
 
-    public void sendMessage(OrderEvent event) {
-        // We use the Symbol (e.g., BTC) as the key so all 
-        // orders for the same coin go to the same partition
-        kafkaTemplate.send(TOPIC, event.getSymbol(), event);
+    public void sendNewOrderMessage(OrderEvent event) {
+        kafkaTemplateNewOrder.send(TOPIC_REQUEST, event.symbol(), event);
+    }
+
+    public void sendOrderCancelMessage(Order order) {
+        CancelEvent cancelEvent = new CancelEvent(order.getId().toString(), order.getSymbol(), order.getSide());
+        this.kafkaTemplateCancelOrder.send(TOPIC_CANCEL, order.getSymbol(), cancelEvent);
     }
 }

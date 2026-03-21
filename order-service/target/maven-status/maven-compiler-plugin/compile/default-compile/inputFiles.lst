@@ -1,4 +1,12 @@
 /Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/service/OrderProcessingService.java
 /Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/producer/OrderProducer.java
 /Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/controller/OrderController.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/repository/TradeRepository.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/consumer/TradeConsumer.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/controller/TradeController.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/model/Order.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/model/Trade.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/client/WalletClient.java
 /Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/OrderServiceApplication.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/exception/GlobalExceptionHandler.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/order-service/src/main/java/com/apextrade/orderservice/repository/OrderRepository.java

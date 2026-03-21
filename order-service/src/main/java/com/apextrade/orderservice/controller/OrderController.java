@@ -1,20 +1,30 @@
 package com.apextrade.orderservice.controller;
 
-import com.apextrade.dto.OrderEvent;
+import com.apextrade.dto.http.OrderRequest;
 import com.apextrade.orderservice.service.OrderProcessingService;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/orders")
-@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderProcessingService orderProcessingService;
 
+    public OrderController(OrderProcessingService orderProcessingService) {
+        this.orderProcessingService = orderProcessingService;
+    }
+
     @PostMapping
-    public String placeOrder(@RequestBody OrderEvent orderRequest) {
-        orderProcessingService.handleOrder(orderRequest);
-        return "Order Received Successfully!";
+    public ResponseEntity<String> placeOrder(@RequestBody OrderRequest request) {
+        String orderId = orderProcessingService.handleOrder(request);
+        return ResponseEntity.ok("Order Received Successfully! ID: " + orderId);
+    }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<String> cancelOrder(@PathVariable Long orderId) {
+        orderProcessingService.cancelOrder(orderId);
+        return ResponseEntity.ok("Cancellation request submitted for Order: " + orderId);
     }
 }

@@ -1,1 +1,6 @@
-/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/common-dto/src/main/java/com/apextrade/dto/OrderEvent.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/common-dto/src/main/java/com/apextrade/dto/enums/OrderStatus.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/common-dto/src/main/java/com/apextrade/dto/kafka/TradeEvent.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/common-dto/src/main/java/com/apextrade/dto/kafka/CancelEvent.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/common-dto/src/main/java/com/apextrade/dto/enums/OrderSide.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/common-dto/src/main/java/com/apextrade/dto/http/OrderRequest.java
+/Users/abdulwahid/Desktop/GISMA University/Semester Project/apex-trade-engine/common-dto/src/main/java/com/apextrade/dto/kafka/OrderEvent.java
