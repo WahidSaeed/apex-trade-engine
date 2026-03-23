@@ -36,7 +36,10 @@ public class OrderProcessingService {
     public String handleOrder(OrderRequest request) {
 
         BigDecimal totalCost = request.price().multiply(request.quantity());
-        BigDecimal currentBalance = walletClient.getUserWalletBalanceByCurrency(request.userName(), "USD");
+        
+        // Fix: If BUYing, check Quote currency (e.g. USD). If SELLing, check Base currency (e.g. BTC)
+        String currencyToCheck = (request.side() == com.apextrade.dto.enums.OrderSide.BUY) ? request.symbol().split("-")[1] : request.symbol().split("-")[0];
+        BigDecimal currentBalance = walletClient.getUserWalletBalanceByCurrency(request.userName(), currencyToCheck);
 
         if (currentBalance.compareTo(totalCost) < 0) {
             throw new RuntimeException("Insufficient Funds: You need " + totalCost + " USD");

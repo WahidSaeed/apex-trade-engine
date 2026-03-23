@@ -26,7 +26,7 @@ public class OrderController {
         return orderProcessingService.getUserOrders(userId);
     }
 
-    @PostMapping
+    @PostMapping("/placeOrder")
     public ResponseEntity<String> placeOrder(@RequestBody OrderRequest request) {
         String orderId = orderProcessingService.handleOrder(request);
         return ResponseEntity.ok("Order Received Successfully! ID: " + orderId);

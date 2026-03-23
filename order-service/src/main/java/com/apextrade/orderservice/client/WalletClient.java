@@ -8,6 +8,6 @@ import java.math.BigDecimal;
 @FeignClient(name = "wallet-service", url = "http://localhost:8083")
 public interface WalletClient {
 
-    @GetMapping("/api/v1/wallets/{userId}/{currency}/balance")
-    BigDecimal getUserWalletBalanceByCurrency(@PathVariable String userId, @PathVariable String currency);
+    @GetMapping("/api/v1/wallets/{userName}/{currency}/balance")
+    BigDecimal getUserWalletBalanceByCurrency(@PathVariable String userName, @PathVariable String currency);
 }
