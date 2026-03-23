@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class WalletService {
@@ -19,12 +18,12 @@ public class WalletService {
         this.walletRepository = walletRepository;
     }
 
-    public List<Wallet> getWalletsByUserId(String userId) {
-        return walletRepository.findByUserId(userId);
+    public List<Wallet> getWalletsByUserName(String userName) {
+        return walletRepository.findByUserName(userName);
     }
 
-    public BigDecimal getWalletsByUserIdAndCurrency(String userId, String currency) {
-        return walletRepository.findByUserIdAndCurrency(userId, currency)
+    public BigDecimal getWalletsByUserNameAndCurrency(String userName, String currency) {
+        return walletRepository.findByUserNameAndCurrency(userName, currency)
                 .map(Wallet::getBalance)
                 .orElse(BigDecimal.ZERO);
     }
@@ -40,9 +39,9 @@ public class WalletService {
         updateBalance(trade.sellerId(), trade.symbol().split("-")[0], trade.quantity().negate());
     }
 
-    private void updateBalance(String userId, String currency, BigDecimal amount) {
-        Wallet wallet = walletRepository.findByUserIdAndCurrency(userId, currency)
-            .orElseThrow(() -> new RuntimeException("Wallet not found for " + userId));
+    private void updateBalance(String userName, String currency, BigDecimal amount) {
+        Wallet wallet = walletRepository.findByUserNameAndCurrency(userName, currency)
+            .orElseThrow(() -> new RuntimeException("Wallet not found for " + userName));
         
         wallet.setBalance(wallet.getBalance().add(amount));
         walletRepository.save(wallet);

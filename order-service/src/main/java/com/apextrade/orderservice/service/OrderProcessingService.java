@@ -9,6 +9,7 @@ import com.apextrade.orderservice.producer.OrderProducer;
 import com.apextrade.orderservice.repository.OrderRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +36,14 @@ public class OrderProcessingService {
     public String handleOrder(OrderRequest request) {
 
         BigDecimal totalCost = request.price().multiply(request.quantity());
-        BigDecimal currentBalance = walletClient.getUserWalletBalanceByCurrency(request.userId(), "USD");
+        BigDecimal currentBalance = walletClient.getUserWalletBalanceByCurrency(request.userName(), "USD");
 
         if (currentBalance.compareTo(totalCost) < 0) {
             throw new RuntimeException("Insufficient Funds: You need " + totalCost + " USD");
         }
 
         Order order = new Order(
-            request.userId(), 
+            request.userName(), 
             request.symbol(), 
             request.side(), 
             request.price());
@@ -51,7 +52,7 @@ public class OrderProcessingService {
         String orderId = savedOrder.getId().toString();
         OrderEvent finalOrder = new OrderEvent(
             orderId,
-            savedOrder.getUserId(),
+            savedOrder.getUserName(),
             savedOrder.getSymbol(),
             savedOrder.getSide(),
             savedOrder.getPrice(),
@@ -78,5 +79,9 @@ public class OrderProcessingService {
 
         orderProducer.sendOrderCancelMessage(order);
         System.out.println("Cancel Order dispatched to Kafka: " + order.getId());
+    }
+
+    public List<Order> getUserOrders(String userName) {
+        return orderRepository.findByUserName(userName);
     }
 }

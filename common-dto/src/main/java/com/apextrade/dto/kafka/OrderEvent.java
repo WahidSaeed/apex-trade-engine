@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public record OrderEvent(
     String orderId,
-    String userId,
+    String userName,
     String symbol,
     OrderSide orderSide,
     BigDecimal price,

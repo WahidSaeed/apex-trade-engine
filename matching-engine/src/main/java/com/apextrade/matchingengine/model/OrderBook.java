@@ -52,8 +52,8 @@ public class OrderBook {
                     tradeId,
                     buyOrder.orderId(),
                     sellOrder.orderId(),
-                    buyOrder.userId(),
-                    sellOrder.userId(),
+                    buyOrder.userName(),
+                    sellOrder.userName(),
                     buyOrder.symbol(),
                     bestAskPrice, // Execution Price
                     matchedQty,
@@ -72,7 +72,7 @@ public class OrderBook {
                     // Seller partially filled - Replace the record in the list
                     BigDecimal remainingSellQty = sellQty.subtract(matchedQty);
                     OrderEvent updatedSellOrder = new OrderEvent(
-                        sellOrder.orderId(), sellOrder.userId(), sellOrder.symbol(), 
+                        sellOrder.orderId(), sellOrder.userName(), sellOrder.symbol(), 
                         sellOrder.orderSide(), sellOrder.price(), remainingSellQty, sellOrder.timestamp()
                     );
                     
@@ -88,7 +88,7 @@ public class OrderBook {
         // If still have quantity, add the remainder to the Bids TreeMap
         if (remainingBuyQty.compareTo(BigDecimal.ZERO) > 0) {
             // Create a new record with the remaining qty to store in the book
-            OrderEvent remainder = new OrderEvent(buyOrder.orderId(), buyOrder.userId(), 
+            OrderEvent remainder = new OrderEvent(buyOrder.orderId(), buyOrder.userName(), 
                                                 buyOrder.symbol(), buyOrder.orderSide(), 
                                                 buyOrder.price(), remainingBuyQty, buyOrder.timestamp());
             bids.computeIfAbsent(buyOrder.price(), k -> new ArrayList<>()).add(remainder);
@@ -121,8 +121,8 @@ public class OrderBook {
                     tradeId,
                     buyOrder.orderId(),
                     sellOrder.orderId(),
-                    buyOrder.userId(),
-                    sellOrder.userId(),
+                    buyOrder.userName(),
+                    sellOrder.userName(),
                     sellOrder.symbol(),
                     bestBidPrice, // Execution happens at the Bid price (the sitting order)
                     matchedQty,
@@ -140,7 +140,7 @@ public class OrderBook {
                     // Buyer partially filled - Replace with updated record
                     BigDecimal remainingBuyQty = buyQty.subtract(matchedQty);
                     OrderEvent updatedBuyOrder = new OrderEvent(
-                        buyOrder.orderId(), buyOrder.userId(), buyOrder.symbol(),
+                        buyOrder.orderId(), buyOrder.userName(), buyOrder.symbol(),
                         buyOrder.orderSide(), buyOrder.price(), remainingBuyQty, buyOrder.timestamp()
                     );
                     int index = ordersAtPrice.indexOf(buyOrder);
@@ -154,7 +154,7 @@ public class OrderBook {
         // If still have quantity, add the remainder to the Asks (Sellers) TreeMap
         if (remainingSellQty.compareTo(BigDecimal.ZERO) > 0) {
             OrderEvent remainder = new OrderEvent(
-                sellOrder.orderId(), sellOrder.userId(), sellOrder.symbol(),
+                sellOrder.orderId(), sellOrder.userName(), sellOrder.symbol(),
                 sellOrder.orderSide(), sellOrder.price(), remainingSellQty, sellOrder.timestamp()
             );
             asks.computeIfAbsent(sellOrder.price(), k -> new ArrayList<>()).add(remainder);

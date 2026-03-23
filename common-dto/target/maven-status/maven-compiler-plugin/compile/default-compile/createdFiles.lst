@@ -1,6 +1,7 @@
 com/apextrade/dto/kafka/CancelEvent.class
+com/apextrade/dto/enums/OrderStatus.class
 com/apextrade/dto/enums/OrderSide.class
+com/apextrade/dto/http/AuthRequest.class
 com/apextrade/dto/http/OrderRequest.class
 com/apextrade/dto/kafka/OrderEvent.class
 com/apextrade/dto/kafka/TradeEvent.class
-com/apextrade/dto/enums/OrderStatus.class

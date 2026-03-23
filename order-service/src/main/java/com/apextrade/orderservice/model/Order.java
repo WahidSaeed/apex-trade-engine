@@ -14,8 +14,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private String userId;
+    @Column(name = "user_name", nullable = false)
+    private String userName;
 
     private String symbol;
 
@@ -34,8 +34,8 @@ public class Order {
 
     public Order() {}
 
-    public Order(String userId, String symbol, OrderSide side, BigDecimal price) {
-        this.userId = userId;
+    public Order(String userName, String symbol, OrderSide side, BigDecimal price) {
+        this.userName = userName;
         this.symbol = symbol;
         this.side = side;
         this.price = price;
@@ -47,7 +47,7 @@ public class Order {
     public Long getId() { return id; }
     public OrderSide getSide() { return side; }
     public OrderStatus getStatus() { return status; }
-    public String getUserId() { return userId; }
+    public String getUserName() { return userName; }
     public String getSymbol() { return symbol; }
     public BigDecimal getPrice() { return price; }
     public LocalDateTime getCreatedAt() { return createdAt; }

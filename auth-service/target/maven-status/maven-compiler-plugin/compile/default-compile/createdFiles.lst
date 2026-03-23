@@ -1,0 +1,6 @@
+com/apextrade/authservice/AuthServiceApplication.class
+com/apextrade/authservice/service/JwtService.class
+com/apextrade/authservice/model/User.class
+com/apextrade/authservice/repository/UserRepository.class
+com/apextrade/authservice/config/AuthConfig.class
+com/apextrade/authservice/controller/AuthController.class

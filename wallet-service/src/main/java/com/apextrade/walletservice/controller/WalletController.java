@@ -19,13 +19,13 @@ public class WalletController {
         this.walletService = walletService;
     }
 
-    @GetMapping("/{userId}/balance")
-    public ResponseEntity<List<Wallet>> getUserBalances(@PathVariable String userId) {
-        return ResponseEntity.ok(walletService.getWalletsByUserId(userId));
+    @GetMapping("/{userName}/balance")
+    public ResponseEntity<List<Wallet>> getUserBalances(@PathVariable String userName) {
+        return ResponseEntity.ok(walletService.getWalletsByUserName(userName));
     }
 
-    @GetMapping("/{userId}/{currency}/balance")
-    public ResponseEntity<BigDecimal> getUserWalletBalanceByCurrency(@PathVariable String userId, @PathVariable String currency) {
-        return ResponseEntity.ok(walletService.getWalletsByUserIdAndCurrency(userId, currency));
+    @GetMapping("/{userName}/{currency}/balance")
+    public ResponseEntity<BigDecimal> getUserWalletBalanceByCurrency(@PathVariable String userName, @PathVariable String currency) {
+        return ResponseEntity.ok(walletService.getWalletsByUserNameAndCurrency(userName, currency));
     }
 }

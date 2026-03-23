@@ -1,0 +1,5 @@
+com/apextrade/apigateway/filter/RouteValidator.class
+com/apextrade/apigateway/filter/AuthenticationFilter.class
+com/apextrade/apigateway/ApiGatewayApplication.class
+com/apextrade/apigateway/filter/AuthenticationFilter$Config.class
+com/apextrade/apigateway/service/JwtService.class

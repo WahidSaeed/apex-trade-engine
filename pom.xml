@@ -15,6 +15,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>api-gateway</module>
+        <module>auth-service</module>
+        <module>eureka-server</module>
         <module>common-dto</module>
         <module>order-service</module>
         <module>matching-engine</module>
@@ -26,6 +29,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <springdoc.version>2.3.0</springdoc.version>
     </properties>
 
     <dependencyManagement>
@@ -47,6 +51,11 @@
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -11,7 +11,8 @@ public class Wallet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userId;
+    @Column(name = "user_name")
+    private String userName;
     private String currency; // e.g., "USD" or "BTC"
     
     @Column(precision = 18, scale = 8)
@@ -19,15 +20,15 @@ public class Wallet {
     
     public Wallet() {}
 
-    public Wallet(String userId, String currency, BigDecimal balance) {
-        this.userId = userId;
+    public Wallet(String userName, String currency, BigDecimal balance) {
+        this.userName = userName;
         this.currency = currency;
         this.balance = balance;
     }
 
     // Getters
     public Long getId() { return id; }
-    public String getUserId() { return userId; }
+    public String getUserName() { return userName; }
     public String getCurrency() { return currency; }
     public BigDecimal getBalance() { return balance; }
 

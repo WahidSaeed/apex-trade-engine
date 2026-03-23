@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false # IMPORTANT: Tell it not to look for another server
+    fetch-registry: false       # IMPORTANT: Tell it not to fetch a list from another server
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

@@ -35,5 +35,18 @@ services:
     ports:
       - "9092:9092"
 
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - apex-network
+    restart: always
+
+networks:
+  apex-network:
+    driver: bridge
+
 volumes:
   postgres_data:

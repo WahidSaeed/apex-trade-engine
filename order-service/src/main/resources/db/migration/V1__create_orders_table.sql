@@ -9,4 +9,4 @@ CREATE TABLE orders (
 );
 
 -- Index for fast lookups by user (Berlin exchange style)
-CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_user_name ON orders(user_id);

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import com.apextrade.dto.enums.OrderSide;
 
 public record OrderRequest(
-    String userId,
+    String userName,
     String symbol,
     OrderSide side,
     BigDecimal price,
