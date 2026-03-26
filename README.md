@@ -71,6 +71,8 @@ ApexTrade uses a normalised relational model for absolute data consistency:
 - **Normalised Trade Records** — The `trades` table stores execution metadata only; price reconstruction is handled via high-performance SQL Views joining on `orders`
 - **Constraint Safety** — Hard `CHECK` constraints at the database level prevent negative balances, providing a final guard against race conditions
 
+<img width="2816" height="1536" alt="Gemini_Generated_Image_zcvycczcvycczcvy" src="https://github.com/user-attachments/assets/252e082a-77ad-4ac6-a22e-ce8013f6fb08" />
+
 ---
 
 ## Getting Started
