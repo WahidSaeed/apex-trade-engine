@@ -4,6 +4,7 @@ import com.apextrade.dto.enums.OrderStatus;
 import com.apextrade.dto.http.OrderRequest;
 import com.apextrade.dto.kafka.*;
 import com.apextrade.orderservice.client.WalletClient;
+import com.apextrade.orderservice.exception.InsufficientFundsException;
 import com.apextrade.orderservice.model.Order;
 import com.apextrade.orderservice.producer.OrderProducer;
 import com.apextrade.orderservice.repository.OrderRepository;
@@ -34,15 +35,12 @@ public class OrderProcessingService {
 
     @Transactional
     public String handleOrder(OrderRequest request) {
-
-        BigDecimal totalCost = request.price().multiply(request.quantity());
         
-        // Fix: If BUYing, check Quote currency (e.g. USD). If SELLing, check Base currency (e.g. BTC)
         String currencyToCheck = (request.side() == com.apextrade.dto.enums.OrderSide.BUY) ? request.symbol().split("-")[1] : request.symbol().split("-")[0];
         BigDecimal currentBalance = walletClient.getUserWalletBalanceByCurrency(request.userName(), currencyToCheck);
 
-        if (currentBalance.compareTo(totalCost) < 0) {
-            throw new RuntimeException("Insufficient Funds: You need " + totalCost + " USD");
+        if (currentBalance.compareTo(request.quantity()) < 0) {
+            throw new InsufficientFundsException("Insufficient " + request.symbol() + " balance.");
         }
 
         Order order = new Order(

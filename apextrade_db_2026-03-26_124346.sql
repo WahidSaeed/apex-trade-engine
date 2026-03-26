@@ -43,6 +43,85 @@ CREATE SCHEMA wallet_schema;
 
 ALTER SCHEMA wallet_schema OWNER TO apextrader;
 
+--
+-- Name: assign_default_role(); Type: FUNCTION; Schema: auth_schema; Owner: apextrader
+--
+
+CREATE FUNCTION auth_schema.assign_default_role() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- This assumes ROLE_USER always has ID 1 (based on your dump)
+    INSERT INTO auth_schema.user_roles (user_id, role_id)
+    VALUES (NEW.id, 1);
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION auth_schema.assign_default_role() OWNER TO apextrader;
+
+--
+-- Name: initialize_user_wallets(); Type: FUNCTION; Schema: wallet_schema; Owner: apextrader
+--
+
+CREATE FUNCTION wallet_schema.initialize_user_wallets() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- Create the USD Wallet
+    INSERT INTO wallet_schema.wallets (user_name, currency, balance)
+    VALUES (NEW.user_name, 'USD', 100000.00000000);
+
+    -- Create the BTC Wallet
+    INSERT INTO wallet_schema.wallets (user_name, currency, balance)
+    VALUES (NEW.user_name, 'BTC', 0.70000000);
+
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION wallet_schema.initialize_user_wallets() OWNER TO apextrader;
+
+--
+-- Name: process_trade_settlement(character varying, character varying, character varying, numeric, numeric); Type: PROCEDURE; Schema: wallet_schema; Owner: apextrader
+--
+
+CREATE PROCEDURE wallet_schema.process_trade_settlement(IN p_buy_user character varying, IN p_sell_user character varying, IN p_symbol character varying, IN p_price numeric, IN p_quantity numeric)
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    v_base_curr VARCHAR := split_part(p_symbol, '-', 1); -- e.g., BTC
+    v_quote_curr VARCHAR := split_part(p_symbol, '-', 2); -- e.g., USD
+    v_total_cost NUMERIC := p_price * p_quantity;
+BEGIN
+    -- 1. Deduct Quote (USD) from Buyer
+    UPDATE wallet_schema.wallets SET balance = balance - v_total_cost 
+    WHERE user_name = p_buy_user AND currency = v_quote_curr;
+
+    -- 2. Add Base (BTC) to Buyer
+    UPDATE wallet_schema.wallets SET balance = balance + p_quantity 
+    WHERE user_name = p_buy_user AND currency = v_base_curr;
+
+    -- 3. Add Quote (USD) to Seller
+    UPDATE wallet_schema.wallets SET balance = balance + v_total_cost 
+    WHERE user_name = p_sell_user AND currency = v_quote_curr;
+
+    -- 4. Deduct Base (BTC) from Seller
+    UPDATE wallet_schema.wallets SET balance = balance - p_quantity 
+    WHERE user_name = p_sell_user AND currency = v_base_curr;
+
+    -- 5. Safety Check: Ensure no negative balances (Post-Trade)
+    IF EXISTS (SELECT 1 FROM wallet_schema.wallets WHERE balance < 0) THEN
+        RAISE EXCEPTION 'Settlement failed: Insufficient funds for trade.';
+    END IF;
+END;
+$$;
+
+
+ALTER PROCEDURE wallet_schema.process_trade_settlement(IN p_buy_user character varying, IN p_sell_user character varying, IN p_symbol character varying, IN p_price numeric, IN p_quantity numeric) OWNER TO apextrader;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -207,6 +286,40 @@ ALTER SEQUENCE order_schema.orders_id_seq OWNED BY order_schema.orders.id;
 
 
 --
+-- Name: roles; Type: TABLE; Schema: order_schema; Owner: apextrader
+--
+
+CREATE TABLE order_schema.roles (
+    id integer NOT NULL,
+    name character varying(20) NOT NULL
+);
+
+
+ALTER TABLE order_schema.roles OWNER TO apextrader;
+
+--
+-- Name: roles_id_seq; Type: SEQUENCE; Schema: order_schema; Owner: apextrader
+--
+
+CREATE SEQUENCE order_schema.roles_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE order_schema.roles_id_seq OWNER TO apextrader;
+
+--
+-- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: order_schema; Owner: apextrader
+--
+
+ALTER SEQUENCE order_schema.roles_id_seq OWNED BY order_schema.roles.id;
+
+
+--
 -- Name: trades; Type: TABLE; Schema: order_schema; Owner: apextrader
 --
 
@@ -245,6 +358,67 @@ ALTER SEQUENCE order_schema.trades_id_seq OWNED BY order_schema.trades.id;
 
 
 --
+-- Name: view_market_depth; Type: VIEW; Schema: order_schema; Owner: apextrader
+--
+
+CREATE VIEW order_schema.view_market_depth AS
+ SELECT symbol,
+    side,
+    price,
+    sum(1) AS total_quantity,
+    count(id) AS order_count
+   FROM order_schema.orders
+  WHERE ((status)::text = 'PENDING'::text)
+  GROUP BY symbol, side, price
+  ORDER BY symbol, side DESC, price;
+
+
+ALTER VIEW order_schema.view_market_depth OWNER TO apextrader;
+
+--
+-- Name: view_trade_velocity; Type: VIEW; Schema: order_schema; Owner: apextrader
+--
+
+CREATE VIEW order_schema.view_trade_velocity AS
+ SELECT symbol,
+    date_trunc('minute'::text, executed_at) AS minute_slot,
+    count(*) AS trades_per_minute,
+    sum((quantity * price)) AS usd_volume_per_minute
+   FROM order_schema.trades
+  GROUP BY symbol, (date_trunc('minute'::text, executed_at))
+  ORDER BY (date_trunc('minute'::text, executed_at)) DESC;
+
+
+ALTER VIEW order_schema.view_trade_velocity OWNER TO apextrader;
+
+--
+-- Name: view_whale_trades; Type: VIEW; Schema: order_schema; Owner: apextrader
+--
+
+CREATE VIEW order_schema.view_whale_trades AS
+ WITH stats AS (
+         SELECT trades.symbol,
+            avg(trades.quantity) AS avg_qty
+           FROM order_schema.trades
+          GROUP BY trades.symbol
+        )
+ SELECT t.id,
+    t.buy_order_id,
+    t.sell_order_id,
+    t.symbol,
+    t.price,
+    t.quantity,
+    t.executed_at,
+    s.avg_qty
+   FROM (order_schema.trades t
+     JOIN stats s ON (((t.symbol)::text = (s.symbol)::text)))
+  WHERE (t.quantity > (s.avg_qty * (3)::numeric))
+  ORDER BY t.executed_at DESC;
+
+
+ALTER VIEW order_schema.view_whale_trades OWNER TO apextrader;
+
+--
 -- Name: flyway_schema_history; Type: TABLE; Schema: wallet_schema; Owner: apextrader
 --
 
@@ -272,11 +446,37 @@ CREATE TABLE wallet_schema.wallets (
     id bigint NOT NULL,
     user_name character varying(255) NOT NULL,
     currency character varying(10) NOT NULL,
-    balance numeric(18,8) DEFAULT 0.0
+    balance numeric(18,8) DEFAULT 0.0,
+    CONSTRAINT current_balance_check CHECK ((balance >= (0)::numeric))
 );
 
 
 ALTER TABLE wallet_schema.wallets OWNER TO apextrader;
+
+--
+-- Name: user_portfolio_valuation; Type: MATERIALIZED VIEW; Schema: wallet_schema; Owner: apextrader
+--
+
+CREATE MATERIALIZED VIEW wallet_schema.user_portfolio_valuation AS
+ WITH last_prices AS (
+         SELECT DISTINCT ON (trades.symbol) trades.symbol,
+            trades.price
+           FROM order_schema.trades
+          ORDER BY trades.symbol, trades.executed_at DESC
+        )
+ SELECT w.user_name,
+    sum(
+        CASE
+            WHEN ((w.currency)::text = 'USD'::text) THEN w.balance
+            ELSE (w.balance * COALESCE(lp.price, (0)::numeric))
+        END) AS total_usd_valuation
+   FROM (wallet_schema.wallets w
+     LEFT JOIN last_prices lp ON (((lp.symbol)::text = ((w.currency)::text || '-USD'::text))))
+  GROUP BY w.user_name
+  WITH NO DATA;
+
+
+ALTER MATERIALIZED VIEW wallet_schema.user_portfolio_valuation OWNER TO apextrader;
 
 --
 -- Name: wallets_id_seq; Type: SEQUENCE; Schema: wallet_schema; Owner: apextrader
@@ -321,6 +521,13 @@ ALTER TABLE ONLY order_schema.orders ALTER COLUMN id SET DEFAULT nextval('order_
 
 
 --
+-- Name: roles id; Type: DEFAULT; Schema: order_schema; Owner: apextrader
+--
+
+ALTER TABLE ONLY order_schema.roles ALTER COLUMN id SET DEFAULT nextval('order_schema.roles_id_seq'::regclass);
+
+
+--
 -- Name: trades id; Type: DEFAULT; Schema: order_schema; Owner: apextrader
 --
 
@@ -360,6 +567,8 @@ COPY auth_schema.roles (id, name) FROM stdin;
 --
 
 COPY auth_schema.user_roles (user_id, role_id) FROM stdin;
+3	1
+4	1
 \.
 
 
@@ -368,7 +577,8 @@ COPY auth_schema.user_roles (user_id, role_id) FROM stdin;
 --
 
 COPY auth_schema.users (id, user_name, password, created_at) FROM stdin;
-1	wahidsaeed1	$2a$10$UdbPEZ/1E1dY/8tbhTzIqOXeqam0juhL3OAqS1ZDs0yMA.7iCxHuW	2026-03-23 06:12:00.107171
+3	wahidsaeed1	$2a$10$GGHLXOQQtFmR914RPJihUO.LvT252owdzueKwJSp1EsDDE5z1/3oi	2026-03-23 08:29:30.821744
+4	mazharHameed1	$2a$10$scD25Tomt52H6IE5DwQ.huCeLO984WnenmnXywa7rbfO1xgvuasDK	2026-03-23 10:27:56.577626
 \.
 
 
@@ -390,6 +600,18 @@ COPY order_schema.flyway_schema_history (installed_rank, version, description, t
 --
 
 COPY order_schema.orders (id, user_name, symbol, side, price, status, created_at) FROM stdin;
+1	wahidsaeed1	BTC-USD	BUY	500.00000000	FILLED	2026-03-23 10:27:17.675356
+3	mazharHameed1	BTC-USD	SELL	0.03000000	FILLED	2026-03-23 10:34:29.186608
+8	wahidsaeed1	BTC-USD	BUY	40000.00000000	FILLED	2026-03-26 12:39:37.018024
+7	mazharHameed1	BTC-USD	SELL	40000.00000000	FILLED	2026-03-26 12:39:15.142633
+\.
+
+
+--
+-- Data for Name: roles; Type: TABLE DATA; Schema: order_schema; Owner: apextrader
+--
+
+COPY order_schema.roles (id, name) FROM stdin;
 \.
 
 
@@ -398,6 +620,8 @@ COPY order_schema.orders (id, user_name, symbol, side, price, status, created_at
 --
 
 COPY order_schema.trades (id, buy_order_id, sell_order_id, symbol, price, quantity, executed_at) FROM stdin;
+1	1	3	BTC-USD	500.00000000	1.00000000	2026-03-23 10:34:36.309969
+2	8	7	BTC-USD	40000.00000000	0.50000000	2026-03-26 12:39:52.263964
 \.
 
 
@@ -417,12 +641,10 @@ COPY wallet_schema.flyway_schema_history (installed_rank, version, description, 
 --
 
 COPY wallet_schema.wallets (id, user_name, currency, balance) FROM stdin;
-1	abdul-001	USD	0.00000000
-2	abdul-001	BTC	0.70000000
-5	elena-003	USD	4000.00000000
-6	elena-003	BTC	1.10000000
-3	stefan-002	USD	26000.00000000
-4	stefan-002	BTC	0.70000000
+7	wahidsaeed1	USD	80000.00000000
+8	wahidsaeed1	BTC	1.20000000
+9	mazharHameed1	USD	120000.00000000
+10	mazharHameed1	BTC	0.20000000
 \.
 
 
@@ -437,28 +659,35 @@ SELECT pg_catalog.setval('auth_schema.roles_id_seq', 2, true);
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: auth_schema; Owner: apextrader
 --
 
-SELECT pg_catalog.setval('auth_schema.users_id_seq', 1, true);
+SELECT pg_catalog.setval('auth_schema.users_id_seq', 4, true);
 
 
 --
 -- Name: orders_id_seq; Type: SEQUENCE SET; Schema: order_schema; Owner: apextrader
 --
 
-SELECT pg_catalog.setval('order_schema.orders_id_seq', 1, false);
+SELECT pg_catalog.setval('order_schema.orders_id_seq', 8, true);
+
+
+--
+-- Name: roles_id_seq; Type: SEQUENCE SET; Schema: order_schema; Owner: apextrader
+--
+
+SELECT pg_catalog.setval('order_schema.roles_id_seq', 1, false);
 
 
 --
 -- Name: trades_id_seq; Type: SEQUENCE SET; Schema: order_schema; Owner: apextrader
 --
 
-SELECT pg_catalog.setval('order_schema.trades_id_seq', 1, false);
+SELECT pg_catalog.setval('order_schema.trades_id_seq', 2, true);
 
 
 --
 -- Name: wallets_id_seq; Type: SEQUENCE SET; Schema: wallet_schema; Owner: apextrader
 --
 
-SELECT pg_catalog.setval('wallet_schema.wallets_id_seq', 6, true);
+SELECT pg_catalog.setval('wallet_schema.wallets_id_seq', 10, true);
 
 
 --
@@ -523,6 +752,14 @@ ALTER TABLE ONLY order_schema.flyway_schema_history
 
 ALTER TABLE ONLY order_schema.orders
     ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: order_schema; Owner: apextrader
+--
+
+ALTER TABLE ONLY order_schema.roles
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
 
 
 --
@@ -614,6 +851,20 @@ CREATE INDEX flyway_schema_history_s_idx ON wallet_schema.flyway_schema_history 
 
 
 --
+-- Name: users trg_assign_default_role; Type: TRIGGER; Schema: auth_schema; Owner: apextrader
+--
+
+CREATE TRIGGER trg_assign_default_role AFTER INSERT ON auth_schema.users FOR EACH ROW EXECUTE FUNCTION auth_schema.assign_default_role();
+
+
+--
+-- Name: users trg_initialize_wallets; Type: TRIGGER; Schema: auth_schema; Owner: apextrader
+--
+
+CREATE TRIGGER trg_initialize_wallets AFTER INSERT ON auth_schema.users FOR EACH ROW EXECUTE FUNCTION wallet_schema.initialize_user_wallets();
+
+
+--
 -- Name: user_roles fk_role_id; Type: FK CONSTRAINT; Schema: auth_schema; Owner: apextrader
 --
 
@@ -659,6 +910,13 @@ ALTER TABLE ONLY order_schema.trades
 
 ALTER TABLE ONLY order_schema.trades
     ADD CONSTRAINT fk_sell_order FOREIGN KEY (sell_order_id) REFERENCES order_schema.orders(id);
+
+
+--
+-- Name: user_portfolio_valuation; Type: MATERIALIZED VIEW DATA; Schema: wallet_schema; Owner: apextrader
+--
+
+REFRESH MATERIALIZED VIEW wallet_schema.user_portfolio_valuation;
 
 
 --

@@ -34,18 +34,6 @@ public class OrderConsumer {
 
     @KafkaListener(topics = TOPIC_CANCEL, groupId = GROUP)
     public void handleCancellation(CancelEvent event) {
-
-        
         matchingEngineService.cancelOrder(event);
-
-        // this.engineThread.submit(() -> {
-        //     System.out.println("Received Cancel Request for Order: " + event.orderId());
-        //     OrderBook book = orderBooks.get(event.symbol());
-        //     if (book != null) {
-        //         book.cancelOrder(event);
-        //     } else {
-        //         System.out.println("Cancel Failed: No OrderBook found for " + event.symbol());
-        //     }
-        // });
     }
 }

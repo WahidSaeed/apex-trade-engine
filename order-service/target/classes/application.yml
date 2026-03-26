@@ -21,8 +21,10 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       group-id: order-service-group
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.apextrade.dto.kafka"
+        spring.json.value.default.type: "com.apextrade.dto.kafka.TradeEvent"
 
 eureka:
   client:
@@ -35,6 +37,10 @@ management:
   info:
     env:
       enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
   tracing:
     sampling:
       probability: 1.0
@@ -44,4 +50,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,tracing"
+        include: "health, info, tracing"
