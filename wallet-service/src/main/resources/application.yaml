@@ -38,22 +38,22 @@ spring:
         properties:
           spring.json.trusted.packages: "com.apextrade.dto.kafka"
 
-  eureka:
-    client:
-      service-url:
-        defaultZone: http://localhost:8761/eureka/
-    instance:
-      prefer-ip-address: true # Better for Docker/Local environments
-      lease-renewal-interval-in-seconds: 5 # Faster heartbeats for your dev testing
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true # Better for Docker/Local environments
+    lease-renewal-interval-in-seconds: 5 # Faster heartbeats for your dev testing
 
-  management:
+management:
+  tracing:
+    sampling:
+      probability: 1.0 # Capture every request (good for testing in Berlin)
+  zipkin:
     tracing:
-      sampling:
-        probability: 1.0 # Capture every request (good for testing in Berlin)
-    zipkin:
-      tracing:
-        endpoint: "http://localhost:9411/api/v2/spans"
-    endpoints:
-      web:
-        exposure:
-          include: health, info, tracing # Expose tracing via Actuator
+      endpoint: "http://localhost:9411/api/v2/spans"
+  endpoints:
+    web:
+      exposure:
+        include: health, info, tracing # Expose tracing via Actuator

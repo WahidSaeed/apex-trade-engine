@@ -3,7 +3,8 @@ server:
 
 spring:
   application:
-    name: matching-engine
+    name: MATCHING-ENGINE
+  
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -18,15 +19,21 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.apextrade.dto.kafka"
+        # Fix: Explicitly tell it to map to your OrderEvent class
+        spring.json.value.default.type: "com.apextrade.dto.kafka.OrderEvent"
 
-  management:
+
+management:
+  info:
+    env:
+      enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
     tracing:
-      sampling:
-        probability: 1.0 # Capture every request (good for testing in Berlin)
-    zipkin:
-      tracing:
-        endpoint: "http://localhost:9411/api/v2/spans"
-    endpoints:
-      web:
-        exposure:
-          include: health, info, tracing # Expose tracing via Actuator
+      endpoint: "http://localhost:9411/api/v2/spans"
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,tracing"
