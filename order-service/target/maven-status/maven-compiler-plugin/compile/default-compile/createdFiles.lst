@@ -1,4 +1,5 @@
 com/apextrade/orderservice/consumer/TradeConsumer.class
+com/apextrade/orderservice/exception/InsufficientFundsException.class
 com/apextrade/orderservice/repository/OrderRepository.class
 com/apextrade/orderservice/controller/TradeController.class
 com/apextrade/orderservice/controller/OrderController.class

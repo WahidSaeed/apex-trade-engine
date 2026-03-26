@@ -376,6 +376,23 @@ CREATE VIEW order_schema.view_market_depth AS
 ALTER VIEW order_schema.view_market_depth OWNER TO apextrader;
 
 --
+-- Name: view_trade_history; Type: VIEW; Schema: order_schema; Owner: apextrader
+--
+
+CREATE VIEW order_schema.view_trade_history AS
+ SELECT t.id AS trade_id,
+    t.symbol,
+    o.price AS execution_price,
+    t.quantity,
+    (o.price * t.quantity) AS total_value,
+    t.executed_at
+   FROM (order_schema.trades t
+     JOIN order_schema.orders o ON ((t.buy_order_id = o.id)));
+
+
+ALTER VIEW order_schema.view_trade_history OWNER TO apextrader;
+
+--
 -- Name: view_trade_velocity; Type: VIEW; Schema: order_schema; Owner: apextrader
 --
 
@@ -604,6 +621,12 @@ COPY order_schema.orders (id, user_name, symbol, side, price, status, created_at
 3	mazharHameed1	BTC-USD	SELL	0.03000000	FILLED	2026-03-23 10:34:29.186608
 8	wahidsaeed1	BTC-USD	BUY	40000.00000000	FILLED	2026-03-26 12:39:37.018024
 7	mazharHameed1	BTC-USD	SELL	40000.00000000	FILLED	2026-03-26 12:39:15.142633
+201	mazharHameed1	BTC-USD	SELL	42000.00000000	FILLED	2026-03-24 10:00:00
+202	wahidsaeed1	BTC-USD	BUY	42000.00000000	FILLED	2026-03-24 10:01:00
+203	mazharHameed1	BTC-USD	SELL	43500.00000000	FILLED	2026-03-25 15:00:00
+204	wahidsaeed1	BTC-USD	BUY	43500.00000000	FILLED	2026-03-25 15:05:00
+10	wahidsaeed1	BTC-USD	BUY	40000.00000000	FILLED	2026-03-26 14:16:23.879812
+9	mazharHameed1	BTC-USD	SELL	40000.00000000	FILLED	2026-03-26 14:10:27.125771
 \.
 
 
@@ -622,6 +645,9 @@ COPY order_schema.roles (id, name) FROM stdin;
 COPY order_schema.trades (id, buy_order_id, sell_order_id, symbol, price, quantity, executed_at) FROM stdin;
 1	1	3	BTC-USD	500.00000000	1.00000000	2026-03-23 10:34:36.309969
 2	8	7	BTC-USD	40000.00000000	0.50000000	2026-03-26 12:39:52.263964
+4	202	201	BTC-USD	42000.00000000	1.00000000	2026-03-24 10:01:00
+5	204	203	BTC-USD	43500.00000000	0.50000000	2026-03-25 15:05:00
+6	10	9	BTC-USD	40000.00000000	0.50000000	2026-03-26 14:16:55.754238
 \.
 
 
@@ -641,9 +667,9 @@ COPY wallet_schema.flyway_schema_history (installed_rank, version, description, 
 --
 
 COPY wallet_schema.wallets (id, user_name, currency, balance) FROM stdin;
-7	wahidsaeed1	USD	80000.00000000
-8	wahidsaeed1	BTC	1.20000000
-9	mazharHameed1	USD	120000.00000000
+7	wahidsaeed1	USD	60000.00000000
+8	wahidsaeed1	BTC	1.70000000
+9	mazharHameed1	USD	140000.00000000
 10	mazharHameed1	BTC	0.20000000
 \.
 
@@ -666,7 +692,7 @@ SELECT pg_catalog.setval('auth_schema.users_id_seq', 4, true);
 -- Name: orders_id_seq; Type: SEQUENCE SET; Schema: order_schema; Owner: apextrader
 --
 
-SELECT pg_catalog.setval('order_schema.orders_id_seq', 8, true);
+SELECT pg_catalog.setval('order_schema.orders_id_seq', 10, true);
 
 
 --
@@ -680,7 +706,7 @@ SELECT pg_catalog.setval('order_schema.roles_id_seq', 1, false);
 -- Name: trades_id_seq; Type: SEQUENCE SET; Schema: order_schema; Owner: apextrader
 --
 
-SELECT pg_catalog.setval('order_schema.trades_id_seq', 2, true);
+SELECT pg_catalog.setval('order_schema.trades_id_seq', 6, true);
 
 
 --
@@ -922,4 +948,38 @@ REFRESH MATERIALIZED VIEW wallet_schema.user_portfolio_valuation;
 --
 -- PostgreSQL database dump complete
 --
+
+
+
+
+
+
+
+INSERT INTO auth_schema.users (user_name, password)
+SELECT 
+    'user_' || i, 
+    '$2a$10$GGHLXOQQtFmR914RPJihUO.LvT252owdzueKwJSp1EsDDE5z1/3oi' -- Dummy hash
+FROM generate_series(10, 115) AS i;
+
+
+INSERT INTO order_schema.orders (user_name, symbol, side, price, status)
+SELECT 
+    CASE WHEN i % 2 = 0 THEN 'wahidsaeed1' ELSE 'mazharHameed1' END,
+    'BTC-USD',
+    CASE WHEN i % 2 = 0 THEN 'BUY' ELSE 'SELL' END,
+    40000 + (i * 10), -- Varied pricing
+    'FILLED'
+FROM generate_series(10, 120) AS i;
+
+
+
+INSERT INTO order_schema.trades (buy_order_id, sell_order_id, symbol, price, quantity, executed_at)
+SELECT 
+    8, 
+    7, 
+    'BTC-USD',
+    40000 + (i % 50),
+    0.005,
+    NOW() - (i || ' minutes')::interval
+FROM generate_series(1, 110) AS i;
 
