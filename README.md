@@ -46,6 +46,8 @@ The platform is built on a fully decoupled event-driven backbone:
 3. **Wallet Service** — Specialised accounting service for balance locking and trade settlement
 4. **Kafka Event Bus** — High-speed backbone for streaming Order and Trade events between service clusters
 
+![6c0b5352-90d5-43c6-8928-b10d76173014_microservices_architecture_diagram](https://github.com/user-attachments/assets/d80d3345-1e4b-4865-8a38-bb3ef94c90b9)
+
 ---
 
 ## 🛠 Tech Stack
