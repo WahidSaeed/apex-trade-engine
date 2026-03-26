@@ -12,10 +12,10 @@
 
 | Capability | Detail |
 |---|---|
-| ⚡ Ultra-Fast Matching | O(log N) order matching via optimised Java `TreeMap` structures |
-| 📨 Event-Driven Resilience | Apache Kafka decouples trade execution from order management |
-| 🔒 Atomic Settlement | Cross-service transaction integrity with zero-leakage financial updates |
-| 📡 System Observability | Distributed tracing, health metrics, and real-time monitoring |
+| Ultra-Fast Matching | O(log N) order matching via optimised Java `TreeMap` structures |
+| Event-Driven Resilience | Apache Kafka decouples trade execution from order management |
+| Atomic Settlement | Cross-service transaction integrity with zero-leakage financial updates |
+| System Observability | Distributed tracing, health metrics, and real-time monitoring |
 
 ---
 
