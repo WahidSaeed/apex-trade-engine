@@ -5,7 +5,7 @@
 		"description": "Collection for Auth, Wallet, and Order services accessed via API Gateway.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "53352549",
-		"_collection_link": "https://wahidsaeed-5219936.postman.co/workspace/9de8abbf-0bcd-4d0a-868f-f236496b644f/collection/53352549-7d5342c4-36f3-404e-9001-2e25b6b1a0ea?action=share&source=collection_link&creator=53352549"
+		"_collection_link": "https://wahidsaeed-5219936.postman.co/workspace/Abdul-Wahid's-Workspace~9de8abbf-0bcd-4d0a-868f-f236496b644f/collection/53352549-7d5342c4-36f3-404e-9001-2e25b6b1a0ea?action=share&source=collection_link&creator=53352549"
 	},
 	"item": [
 		{
@@ -18,7 +18,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"userName\": \"{{userName}}\",\n    \"password\": \"password123\"\n}",
+							"raw": "{\n    \"userName\": \"mazharHameed1\",\n    \"password\": \"mazharHameed1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -51,9 +51,42 @@
 									"    // The response body is the raw JWT string",
 									"    pm.environment.set(\"jwt_token\", pm.response.text());",
 									"    console.log(\"Token set successfully\");",
-									"}"
+									"}",
+									"",
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('text/plain');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response body is a valid JWT token format\", function () {",
+									"    const responseBody = pm.response.text();",
+									"    const jwtPattern = /^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/;",
+									"",
+									"    pm.expect(responseBody).to.match(jwtPattern, \"Response body should match JWT format\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"JWT token contains the required three parts\", function () {",
+									"    const responseData = pm.response.text();",
+									"    const tokenParts = responseData.split('.');",
+									"",
+									"    pm.expect(tokenParts).to.have.lengthOf(3, \"Token should contain three parts: header, payload, and signature\");",
+									"});",
+									"",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -62,7 +95,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"userName\": \"{{userName}}\",\n    \"password\": \"password123\"\n}",
+							"raw": "{\n    \"userName\": \"wahidsaeed1\",\n    \"password\": \"wahid123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -101,7 +134,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/wallets/{{userName}}/balance",
+							"raw": "{{base_url}}/api/v1/wallets/wahidsaeed1/balance",
 							"host": [
 								"{{base_url}}"
 							],
@@ -109,7 +142,7 @@
 								"api",
 								"v1",
 								"wallets",
-								"{{userName}}",
+								"wahidsaeed1",
 								"balance"
 							]
 						}
@@ -128,7 +161,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/wallets/{{userName}}/USD/balance",
+							"raw": "{{base_url}}/api/v1/wallets/wahidsaeed1/USD/balance",
 							"host": [
 								"{{base_url}}"
 							],
@@ -136,7 +169,7 @@
 								"api",
 								"v1",
 								"wallets",
-								"{{userName}}",
+								"wahidsaeed1",
 								"USD",
 								"balance"
 							]
@@ -162,7 +195,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"userName\": \"{{userName}}\",\n    \"symbol\": \"BTC-USD\",\n    \"side\": \"BUY\",\n    \"price\": 50000.00,\n    \"quantity\": 1.0\n}",
+							"raw": "// {\n//     \"userName\": \"mazharHameed1\",\n//     \"symbol\": \"BTC-USD\",\n//     \"side\": \"SELL\",\n//     \"price\": 40000,\n//     \"quantity\": 0.5\n// }\n\n\n{\n    \"userName\": \"wahidsaeed1\",\n    \"symbol\": \"BTC-USD\",\n    \"side\": \"BUY\",\n    \"price\": 40000,\n    \"quantity\": 0.5\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -170,16 +203,18 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/orders",
+							"raw": "{{base_url}}/api/v1/orders/placeOrder",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"orders"
+								"orders",
+								"placeOrder"
 							]
-						}
+						},
+						"description": "### **Step 1: Mazhar places a SELL Order**\n\nMazhar puts **0.5 BTC** (which is less than his 0.7 limit) up for sale at a price of **$40,000 per BTC**.\n\n### **Step 2: Wahid places a BUY Order**\n\nWahid wants to buy **0.5 BTC** and is willing to pay **$40,000**. Since Mazhar's order is already in your `asks` TreeMap, the engine will match them instantly."
 					},
 					"response": []
 				},
@@ -195,7 +230,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/orders/{{userName}}",
+							"raw": "{{base_url}}/api/v1/orders/my-orders",
 							"host": [
 								"{{base_url}}"
 							],
@@ -203,7 +238,7 @@
 								"api",
 								"v1",
 								"orders",
-								"{{userName}}"
+								"my-orders"
 							]
 						}
 					},
